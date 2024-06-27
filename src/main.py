@@ -15,6 +15,7 @@ load_dotenv()
 
 app = FastAPI()
 
+
 @app.get("/", include_in_schema=False, name="Index")
 async def index():
     return {"service": "GHL Engine"}
@@ -22,25 +23,26 @@ async def index():
 
 @app.get("/health-check", include_in_schema=True, name="Health Check")
 async def health_check(request: Request) -> dict:
+    logger.info(f"*** API Get Logs")
+    response_content = {
+        "service": "GHL Engine",
+        "action": "Health Check",
+        "headers": dict(request.headers),
+        "host": request.client.host,
+        "port": request.client.port,
+        "user-agent": request.headers.get("User-Agent"),
+        "path": request.url.path,
+        "query_string": request.url.query,
+        "scheme": request.url.scheme,
+        "hostname": request.url.hostname,
+        "cookies": request.cookies,
+        "method": request.method,
+        "http_version": request.scope['http_version'],
+        "root_path": request.scope['root_path']
+    }
+    logger.info(f"Health Check response - ({response_content})")
     return Response(
-        content=json.dumps(
-            {   
-                "service": "GHL Engine",
-                "action": "Health Check",
-                "headers": dict(request.headers),
-                "host": request.client.host,
-                "port": request.client.port,
-                "user-agent": request.headers.get("User-Agent"),
-                "path": request.url.path,
-                "query_string": request.url.query,
-                "scheme": request.url.scheme,
-                "hostname": request.url.hostname,
-                "cookies": request.cookies,
-                "method": request.method,
-                "http_version": request.scope['http_version'],
-                "root_path": request.scope['root_path']
-            }
-        ),
+        content=json.dumps(response_content),
         status_code=202,
         media_type="application/json"
     )
@@ -51,7 +53,7 @@ async def show_logs() -> PlainTextResponse:
     logger.info(f"*** API Get Logs")
     try:
         logs_path = os.path.join(ROOT_DIR, "logs", "logs.log")
-        with aiofiles.open(logs_path, "r") as lf:
+        async with aiofiles.open(logs_path, "r") as lf:
             file_lines: list = await lf.readlines()
             file_lines.reverse()
             file = ''.join(file_lines)
@@ -74,5 +76,5 @@ if __name__ == "__main__":
     # set system time to UTC
     os.environ['TZ'] = 'UTC'
     time.tzset()
-    
+
     uvicorn.run(app=app, host=HOST, port=PORT)
