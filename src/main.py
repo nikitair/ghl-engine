@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import PlainTextResponse, Response
 
-from config import HOST, PORT, ROOT_DIR
+from config import HOST, PORT, ROOT_DIR, PRODUCTION
 from config.logging_config import logger
 
 load_dotenv()
@@ -52,12 +52,18 @@ async def health_check(request: Request) -> dict:
 async def show_logs() -> PlainTextResponse:
     logger.info(f"*** API Get Logs")
     try:
-        logs_path = os.path.join(ROOT_DIR, "logs", "logs.log")
+        match PRODUCTION:
+            case 1:
+                logs_path = os.path.join(ROOT_DIR, "logs", "logs.log")
+            case _:
+                logs_path = os.path.join(ROOT_DIR, "dev_logs", "dev_logs.log")
+                
         async with aiofiles.open(logs_path, "r") as lf:
             file_lines: list = await lf.readlines()
             file_lines.reverse()
             file = ''.join(file_lines)
             return PlainTextResponse(content=file)
+        
     except FileNotFoundError or FileExistsError as ex:
         logger.error(f"!!! FILE FINDING ERROR - ({ex})")
         raise HTTPException(

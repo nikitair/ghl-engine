@@ -1,14 +1,19 @@
 import logging
 import os
 
-from . import ROOT_DIR
+from . import ROOT_DIR, PRODUCTION
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     '%(asctime)s UTC - %(levelname)s - %(filename)s:%(funcName)s:%(lineno)d - %(message)s')
 
-logs_file_path = os.path.join(ROOT_DIR, "logs", "logs.log")
+match PRODUCTION:
+    case 1:
+        logs_file_path = os.path.join(ROOT_DIR, "logs", "logs.log")
+    case _:
+        logs_file_path = os.path.join(ROOT_DIR, "dev_logs", "dev_logs.log")
+        
 
 # handlers
 terminal_handler = logging.StreamHandler()
