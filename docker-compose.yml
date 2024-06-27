@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  ghl_engine:
+    image: ghl_engine:latest
+    ports:
+      - "5010:5010"
+    volumes:
+      - ./logs:/app/logs
+    restart: always
