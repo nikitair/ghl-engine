@@ -3,8 +3,9 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,macos,python
 
 
-.gs_api_keys.json
+.gs_credentials.json
 sandbox.py
+.ghl_credentials.json
 
 
 

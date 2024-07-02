@@ -10,10 +10,14 @@ from fastapi.responses import PlainTextResponse, Response
 
 from config import HOST, PORT, ROOT_DIR, PRODUCTION
 from config.logging_config import logger
+from ghl.routers import router as ghl_router
 
 load_dotenv()
 
 app = FastAPI()
+
+# register app routers
+app.include_router(router=ghl_router)
 
 
 @app.get("/", include_in_schema=False, name="Index")
