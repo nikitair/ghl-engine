@@ -23,8 +23,13 @@ class GoogleSheetsAPI:
     sheet = client.open_by_key(sheet_id)
     
     def read_all_data(self) -> list[dict]:
-        logger.info(f"GS API: Read all data from (ws: {self.worksheet_name}; s_id: {self.sheet_id}")
+        logger.info(f"GS API: Read all data from (ws: {self.worksheet_name}; s_id: {self.sheet_id})")
         worksheet = self.sheet.worksheet(self.worksheet_name)
         data = worksheet.get_all_records()
         logger.debug(f"GS API: Found data - ({data})")
         return data
+
+    def clear_worksheet(self):
+        logger.info(f"GS API: Clear Worksheet (ws: {self.worksheet_name}; s_id: {self.sheet_id})")
+        worksheet = self.sheet.worksheet(self.worksheet_name)
+        worksheet.batch_clear(["A2:AA100"])
